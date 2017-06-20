@@ -14,7 +14,7 @@ class CollapsibleTextComponent extends HTMLElement {
     render() {
         const canvas = document.createElement('canvas')
         canvas.width = w
-        canvas.height = h
+        canvas.height = this.collapsibleText.hy
         const context = canvas.getContext('2d')
         context.fillStyle = this.color
         this.collapsibleText.draw(context,this.color)
@@ -42,6 +42,7 @@ class CollapsibleText {
         this.title = title
         this.dir = 0
         this.scale = 0
+        this.hy = h/10
     }
     drawText(context,color) {
         context.fillStyle = color
@@ -64,7 +65,7 @@ class CollapsibleText {
         }
 
         textParts.push({msg,y})
-
+        y+=h/30
         console.log(textParts)
         context.save()
         context.beginPath()
@@ -76,6 +77,7 @@ class CollapsibleText {
             context.fillText(textPart.msg,w/10,textPart.y+h/20)
         })
         context.restore()
+        this.hy = h/10+y*this.scale
     }
     draw(context,color) {
         context.font = context.font.replace(/\d{2}/,h/30)
