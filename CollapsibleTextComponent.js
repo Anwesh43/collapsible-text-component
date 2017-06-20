@@ -24,6 +24,9 @@ class CollapsibleTextComponent extends HTMLElement {
         this.collapsibleText.setDir(dir)
     }
     connectedCallback() {
+        this.img.onmousedown = (event) => {
+            this.animationHandler.start()
+        }
         this.render()
     }
     update() {
