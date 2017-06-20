@@ -122,3 +122,4 @@ class AnimationHandler {
         }
     }
 }
+customElements.define('collapsible-text',CollapsibleTextComponent)
