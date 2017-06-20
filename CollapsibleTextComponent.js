@@ -5,9 +5,10 @@ class CollapsibleTextComponent extends HTMLElement {
         const shadow = this.attachShadow({mode:'open'})
         this.img = document.createElement('img')
         shadow.appendChild(this.img)
-        this.text = this.getAttribute('text')
-        this.title = this.getAttribute('title')
+        const text = this.getAttribute('text')
+        const title = this.getAttribute('title')
         this.color = this.getAttribute('color')
+        this.collapsibleText = new CollapsibleText(text,title)
     }
     render() {
         const canvas = document.createElement('canvas')
@@ -15,9 +16,17 @@ class CollapsibleTextComponent extends HTMLElement {
         canvas.height = h
         const context = canvas.getContext('2d')
         context.fillStyle = this.color
+        this.collapsibleText.draw(context)
+        this.img.src = canvas.toDataURL()
     }
     connectedCallback() {
         this.render()
+    }
+    update() {
+        this.collapsibleText.update()
+    }
+    stopped() {
+        return this.collapsibleText.stopped()
     }
 }
 class CollapsibleText {
