@@ -1,11 +1,11 @@
-const w = window.innerHeight,h = window.innerHeight
+const w = window.innerWidth,h = window.innerHeight
 class CollapsibleTextComponent extends HTMLElement {
     constructor() {
         super()
         const shadow = this.attachShadow({mode:'open'})
         this.img = document.createElement('img')
         shadow.appendChild(this.img)
-        const text = this.getAttribute('text')
+        const text = this.innerHTML
         const title = this.getAttribute('title')
         this.color = this.getAttribute('color')
         this.collapsibleText = new CollapsibleText(text,title)
@@ -17,7 +17,7 @@ class CollapsibleTextComponent extends HTMLElement {
         canvas.height = h
         const context = canvas.getContext('2d')
         context.fillStyle = this.color
-        this.collapsibleText.draw(context)
+        this.collapsibleText.draw(context,this.color)
         this.img.src = canvas.toDataURL()
     }
     start(dir) {
@@ -43,34 +43,37 @@ class CollapsibleText {
         this.dir = 0
         this.scale = 0
     }
-    drawText(context) {
+    drawText(context,color) {
+        context.fillStyle = color
         let msg = ""
         const textParts = []
-        var y = h/10
+        const beginY = h/10
+        var y = h/8
         const tokens = this.text.split(" ")
+        context.font = context.font.replace(/\d{2}/,h/20)
         for(var i=0;i<tokens.length;i++) {
             const tw = context.measureText(msg+tokens[i]).width
             if(tw < 4*w/5) {
-                msg = msg+tokens[i]
+                msg += " "+tokens[i]
             }
             else {
-                y+= h/20
                 textParts.push({msg,y})
+                y+= h/15
                 msg = tokens[i]
             }
         }
-        y += h/20
+
         textParts.push({msg,y})
-        y+=h/20
+
         console.log(textParts)
         context.save()
         context.beginPath()
-        context.rect(0,h/12,w,(y)*this.scale)
+        context.rect(0,beginY,w,(y)*this.scale)
         context.clip()
-        context.fillRect(0,h/12,w,y*this.scale)
+        context.fillRect(0,beginY,w,y)
         context.fillStyle = 'white'
-        this.textParts.forEach((textPart)=>{
-            context.fillText(textPart.msg,w/10,textPart.y)
+        textParts.forEach((textPart)=>{
+            context.fillText(textPart.msg,w/10,textPart.y+h/20)
         })
         context.restore()
     }
@@ -78,8 +81,13 @@ class CollapsibleText {
         context.font = context.font.replace(/\d{2}/,h/30)
         context.save()
         context.fillStyle = color
-        context.fillRect(0,0,w,h/12)
-        this.drawText(context)
+        context.fillRect(0,0,w,h/10)
+        context.fillStyle = 'white'
+        context.font = context.font.replace(/\d{2}/,h/20)
+        //console.log(context.font)
+        context.fillText(this.title,w/20,h/15)
+        context.fillStyle = color
+        this.drawText(context,color)
         context.restore()
     }
     update() {
@@ -108,7 +116,7 @@ class AnimationHandler {
     }
     start() {
         if(this.isAnimating == false) {
-            this.start(this.prevDir*-1)
+            this.component.start(this.prevDir*-1)
             this.isAnimating = true
             const interval = setInterval(()=>{
                 this.component.render()
