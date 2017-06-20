@@ -9,6 +9,7 @@ class CollapsibleTextComponent extends HTMLElement {
         const title = this.getAttribute('title')
         this.color = this.getAttribute('color')
         this.collapsibleText = new CollapsibleText(text,title)
+        this.animationHandler = new AnimationHandler(this)
     }
     render() {
         const canvas = document.createElement('canvas')
@@ -18,6 +19,9 @@ class CollapsibleTextComponent extends HTMLElement {
         context.fillStyle = this.color
         this.collapsibleText.draw(context)
         this.img.src = canvas.toDataURL()
+    }
+    start(dir) {
+        this.collapsibleText.setDir(dir)
     }
     connectedCallback() {
         this.render()
@@ -76,7 +80,7 @@ class CollapsibleText {
         context.restore()
     }
     update() {
-        this.scale += 0.1*this.dir
+        this.scale += 0.2*this.dir
         if(this.scale > 1) {
             this.dir = 0
             this.scale = 1
@@ -86,7 +90,32 @@ class CollapsibleText {
             this.scale = 0
         }
     }
+    setDir(dir) {
+        this.dir = dir
+    }
     stopped() {
         return this.dir == 0
+    }
+}
+class AnimationHandler {
+    constructor(component) {
+        this.component = component
+        this.prevDir = -1
+        this.isAnimating = false
+    }
+    start() {
+        if(this.isAnimating == false) {
+            this.start(this.prevDir*-1)
+            this.isAnimating = true
+            const interval = setInterval(()=>{
+                this.component.render()
+                this.component.update()
+                if(this.component.stopped() == true) {
+                    this.isAnimating = false
+                    this.prevDir *= -1
+                    clearInterval(interval)
+                }
+            },50)
+        }
     }
 }
